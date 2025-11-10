@@ -160,7 +160,7 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:8000/ask" -ContentType "ap
 - **helpful_rate:** (click 👍/👎 in UI to populate)  
 - **by_model:** shows usage per selected model (`gpt-5-mini`, `gpt-5-nano`, etc.)
 
-> Tip: for faster p95, use `gpt-5-nano`, shorten answers via prompt, or enable streaming in the UI.
+> Tip: for faster p95, use `gpt-4o-mini` or `gpt-5-nano`, shorten answers via prompt, or enable streaming in the UI.
 
 ---
 
