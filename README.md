@@ -33,50 +33,51 @@ EMBED_MODEL=text-embedding-3-small
 ### System overview
 ```mermaid
 flowchart LR
-  subgraph Client
-    UI[Web UI\n(index.html)]
-    SlackUser[Slack User]
+  %% Subgraphs with quoted labels
+  subgraph Client [Client]
+    UI["Web UI<br/>(index.html)"]
+    SlackUser["Slack User"]
   end
 
-  subgraph API[FastAPI App]
-    ASK[/POST /ask/]
-    INGEST[/POST /ingest/]
-    FEEDBACK[/POST /feedback/]
-    METRICS[/GET /metrics/]
-    EVAL[/GET /eval/]
-    DEBUG[/GET /debug/*/]
-    SLACK[/POST /slack/command/]
-    LOGS[(.logs/events.jsonl)]
-    STATE{{STATE:\n- bm25\n- collection_name\n- persist_dir}}
+  subgraph API [FastAPI App]
+    ASK["POST /ask"]
+    INGEST["POST /ingest"]
+    FEEDBACK["POST /feedback"]
+    METRICS["GET /metrics"]
+    EVAL["GET /eval"]
+    DEBUG["GET /debug/*"]
+    SLACK["POST /slack/command"]
+    LOGS[".logs/events.jsonl"]
+    STATE["STATE<br/>bm25, collection_name, persist_dir"]
   end
 
-  subgraph Retrieval
-    CHUNK[Chunker\n(token 512–1024, 10–20% overlap)]
-    EMBED[Embeddings\n(text-embedding-3-small)]
-    VECDB[(Chroma\n.collection skyro_rag\n.persist ./.chroma)]
-    BM25[BM25 Retriever]
-    FUSION[Hybrid Fusion\n(dense + sparse)]
-    (RERANK)[Cross-encoder Reranker\n(optional)]
+  subgraph Retrieval [Retrieval]
+    CHUNK["Chunker<br/>(512–1024 tokens, 10–20% overlap)"]
+    EMBED["Embeddings<br/>(text-embedding-3-small)"]
+    VECDB["Chroma<br/>collection: skyro_rag<br/>persist: .chroma"]
+    BM25["BM25 Retriever"]
+    FUSION["Hybrid Fusion<br/>(dense + sparse)"]
+    RERANK["Cross-encoder Reranker<br/>(optional)"]
   end
 
-  subgraph Corpus[Content]
-    DATA[(data/\nPDF, MD, TXT)]
+  subgraph Corpus [Content]
+    DATA["data/<br/>PDF, MD, TXT"]
   end
 
-  subgraph LLM[Generation]
-    MODELS[[gpt-5 / gpt-5-mini / gpt-5-nano\n gpt-4o / gpt-4o-mini]]
+  subgraph LLM [Generation]
+    MODELS["gpt-5 / gpt-5-mini / gpt-5-nano<br/>gpt-4o / gpt-4o-mini"]
   end
 
-  UI -- ask --> ASK
-  SlackUser -- /ask-skyro --> SLACK
+  UI -->|ask| ASK
+  SlackUser -->|/ask-skyro| SLACK
 
   INGEST --> CHUNK --> EMBED --> VECDB
   INGEST --> BM25
   ASK --> FUSION
   FUSION --> VECDB
   FUSION --> BM25
-  FUSION --> (RERANK)
-  (RERANK) --> MODELS
+  FUSION --> RERANK
+  RERANK --> MODELS
   FUSION --> MODELS
   MODELS --> ASK
 
