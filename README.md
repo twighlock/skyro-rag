@@ -91,11 +91,11 @@ flowchart LR
 ```
 ### Basic UI 
 <img width="1620" height="875" alt="image" src="https://github.com/user-attachments/assets/94c395bf-6ddb-4957-9799-1bedbc33ad75" />
-### Model Selection
+Model Selection
 <img width="1113" height="359" alt="image" src="https://github.com/user-attachments/assets/db4c05d3-8a8c-4f83-b04c-1177e31f99fb" />
-### Answer + Citations
+Answer + Citations
 <img width="1169" height="504" alt="image" src="https://github.com/user-attachments/assets/4119c637-a79f-4bc2-9be5-c2f2fe5f5711" />
-### Feedback
+Feedback
 <img width="456" height="76" alt="image" src="https://github.com/user-attachments/assets/b76b5b09-a737-4554-a877-5670ddfca357" />
 
 
