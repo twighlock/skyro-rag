@@ -1,0 +1,5 @@
+tier,daily_limit,monthly_limit,kyc_level,manual_review_threshold
+Bronze,1000,5000,L0,800
+Silver,2500,12000,L1,2000
+Gold,5000,25000,L1,4000
+Platinum,15000,75000,L2,12000

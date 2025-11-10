@@ -1,0 +1,9 @@
+ts_utc,merchant_id,batch_id,endpoint,status,error,attempt,signature_algo
+2024-10-01T12:01:22Z,m_002,bat_1f92,https://contoso.example/cb,500,UPSTREAM_5XX,1,sha256
+2024-10-01T12:01:58Z,m_002,bat_1f92,https://contoso.example/cb,500,UPSTREAM_5XX,2,sha256
+2024-10-01T12:02:36Z,m_002,bat_1f92,https://contoso.example/cb,204,OK,3,sha256
+2024-10-03T18:20:11Z,m_007,bat_2ab1,https://wayne.example/hook,429,RATE_LIMITED,1,sha256
+2024-10-03T18:24:15Z,m_007,bat_2ab1,https://wayne.example/hook,204,OK,3,sha256
+2024-10-05T07:10:03Z,m_006,bat_3cd9,https://stark.example/webhook,400,BAD_SIGNATURE,1,sha256
+2024-10-05T07:12:49Z,m_006,bat_3cd9,https://stark.example/webhook,400,BAD_SIGNATURE,2,sha256
+2024-10-05T07:15:20Z,m_006,bat_3cd9,https://stark.example/webhook,204,OK,3,sha256

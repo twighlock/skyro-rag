@@ -1,0 +1,34 @@
+# On-call schedule (UTC); rotations weekly, handoff Monday 09:00 UTC
+teams:
+  payments:
+    primary:
+      - name: Ravi Patel
+        handle: @ravi
+        start: 2024-10-07T09:00:00Z
+        end:   2024-10-14T09:00:00Z
+      - name: Dana Kim
+        handle: @dana
+        start: 2024-10-14T09:00:00Z
+        end:   2024-10-21T09:00:00Z
+    secondary:
+      - name: Alex Novak
+        handle: @alex
+        start: 2024-10-07T09:00:00Z
+        end:   2024-10-21T09:00:00Z
+  risk:
+    primary:
+      - name: Misha Orlov
+        handle: @misha
+        start: 2024-10-07T09:00:00Z
+        end:   2024-10-14T09:00:00Z
+      - name: Elena Diaz
+        handle: @elena
+        start: 2024-10-14T09:00:00Z
+        end:   2024-10-21T09:00:00Z
+slack_channels:
+  payments: "#payments-oncall"
+  risk: "#risk-oncall"
+pager_policy:
+  page_primary_after_minutes: 0
+  page_secondary_after_minutes: 10
+  escalate_pm_after_minutes: 30

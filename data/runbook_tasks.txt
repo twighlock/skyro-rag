@@ -1,0 +1,29 @@
+# Payout delays runbook — summarized tasks
+when_to_trigger:
+  - backlog_age_minutes > 25
+  - provider_5xx_rate_pct >= 8
+  - payout_delay_p95_minutes > 180
+tasks:
+  - name: Check provider status and error budget
+    owner: SRE
+    steps:
+      - open: "https://status.alphapay.example/"
+      - verify: "error rate < 8% over 10 min"
+  - name: Throttle traffic
+    owner: Eng
+    params:
+      throttle_to_pct: 80
+    steps:
+      - "set router throttle to 80% for affected provider"
+      - "apply retry backoff policy v3"
+  - name: Switch provider if needed
+    owner: Eng
+    condition: "error rate >= 8% for 10 min OR p99 latency > 2x SLO"
+    steps:
+      - "set routing weight to 0 for failing provider"
+      - "increase secondary provider to 100%"
+  - name: Communicate status
+    owner: PM
+    steps:
+      - "post update to #payments, #support"
+      - "update public status page"

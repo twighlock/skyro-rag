@@ -1,0 +1,17 @@
+Meeting: Payouts Weekly — 2024-09-12
+Attendees: PM (Leia), Eng (Ravi), SRE (Dana), Risk (Misha)
+
+Agenda:
+1) Incident follow-up (09-11)
+2) Payouts v2 status
+3) Provider sandbox reliability
+
+Notes:
+- Queue depth alarms tuned (SQS visibility set to 30s). Requeue rate down from 3.4% → 1.9%.
+- Payouts v2: batch callback contract finalized; SDK PRs open. Example payloads approved by Support.
+- Provider sandbox: intermittent 500s; vendor ETA for fix next Mon. Impact limited to sandbox.
+
+Actions:
+- Eng: implement backpressure to 800 RPS ceiling (Ravi)
+- SRE: bump SLO doc and pager thresholds (Dana)
+- PM: comms to Support re: SLA wording (Leia)

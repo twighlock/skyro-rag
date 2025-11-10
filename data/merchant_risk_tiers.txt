@@ -1,0 +1,9 @@
+merchant_id,merchant_name,vertical,tier,risk_score,chargebacks_per_1k,last_reviewed,notes
+m_001,Northwind Traders,Marketplace,T2,0.41,2.7,2024-09-05,Seasonal spikes around holidays
+m_002,Contoso Retail,Retail,T1,0.23,1.6,2024-09-11,Low dispute rate; stable device graph
+m_003,Fabrikam Services,Services,T3,0.68,3.9,2024-08-29,New BIN mix; monitoring
+m_004,Globex Mobility,Transportation,T2,0.52,3.1,2024-09-14,Chargebacks decreasing after AVS tweak
+m_005,Initech Finance,Fintech,T1,0.19,1.2,2024-09-20,Premium merchant; dedicated routing
+m_006,Stark Foods,Food Delivery,T3,0.73,4.6,2024-09-02,High promo abuse during campaigns
+m_007,Wayne Media,Digital Goods,T2,0.47,2.9,2024-09-10,Device graph coverage improving
+m_008,Acme Health,Healthcare,T1,0.21,1.0,2024-09-18,PCI scope reduced; solid KYC program

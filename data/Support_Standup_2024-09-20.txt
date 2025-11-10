@@ -1,0 +1,4 @@
+Support Standup — 2024-09-20
+- Spike in limit questions after announcement; error copy updated to link to /settings/limits.
+- Two merchants reported webhook signature mismatch; rotating secrets resolved.
+- No open SEV incidents; 1 medium priority bug on sandbox callback retries.

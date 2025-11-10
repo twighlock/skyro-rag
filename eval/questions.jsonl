@@ -1,0 +1,4 @@
+{"q":"Which merchants are in risk tier T3...","gold":["data/merchant_risk_tiers.txt"],"must_contain":["Fabrikam","Stark"]}
+{"q":"When do we escalate payout delays...","gold":["data/SLA_and_Escalations.txt","data/runbook_tasks.txt"],"must_contain":["25 minutes","80%","status page"]}
+{"q":"What caused the ledger desync...","gold":["data/Postmortem_Ledger_Desync_2024-10-14.pdf"],"must_contain":["unique index","provider_ref","partial filter"]}
+{"q":"What are the daily and monthly limits...","gold":["data/payout_limits.txt","data/Feature_Spec_P2P_Limits_v2.txt","data/Risk_KYC_Policy.txt"],"must_contain":["Gold","$5,000","no repeat KYC"]}

@@ -1,0 +1,19 @@
+{
+  "version": "2024-09-01",
+  "currencies": ["USD", "EUR", "GBP", "KZT"],
+  "fees": {
+    "P2P": { "USD_EUR": 0.006, "USD_GBP": 0.007, "USD_KZT": 0.004, "EUR_GBP": 0.006 },
+    "Payouts": { "domestic": 0.003, "cross_border": 0.009, "instant": 0.012 }
+  },
+  "tiers": {
+    "Bronze": { "daily": 1000, "monthly": 5000, "kyc": "L0" },
+    "Silver": { "daily": 2500, "monthly": 12000, "kyc": "L1" },
+    "Gold":   { "daily": 5000, "monthly": 25000, "kyc": "L1" },
+    "Platinum": { "daily": 15000, "monthly": 75000, "kyc": "L2" }
+  },
+  "payouts": {
+    "providers": ["alphaPay", "betaWire"],
+    "callback_signature": "sha256",
+    "max_batch_items": 1000
+  }
+}

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Skyro RAG – Tiny Web UI</title>
+  <style>
+    :root { --bg:#0b0f14; --panel:#121822; --text:#e6edf3; --muted:#9fb0c3; --accent:#4ea1ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    header { padding:18px 20px; border-bottom:1px solid #263246; background:linear-gradient(180deg, #0f1520, #0b0f14); position:sticky; top:0; z-index:10;}
+    header h1 { margin:0; font-size:16px; letter-spacing:0.3px; }
+    main { max-width:960px; margin:0 auto; padding:20px; display:grid; gap:16px; }
+    .row { display:grid; gap:10px; grid-template-columns: 1fr auto; align-items:start; }
+    .panel { background:var(--panel); border:1px solid #263246; border-radius:14px; padding:14px; }
+    .btn { background:var(--accent); color:#001430; border:none; padding:10px 14px; border-radius:10px; font-weight:600; cursor:pointer; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .ghost { background:transparent; border:1px solid #263246; color:var(--text); }
+    input[type="text"], textarea {
+      width:100%; background:#0d1420; color:var(--text); border:1px solid #263246; border-radius:10px; padding:12px;
+    }
+    small { color:var(--muted); }
+    .grid { display:grid; gap:10px; }
+    .samples { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { border:1px solid #2a3a54; background:#0d1420; color:var(--muted); padding:6px 10px; border-radius:999px; cursor:pointer; }
+    .chip:hover { color:var(--text); border-color:#3a5278; }
+    .answer { white-space:pre-wrap; }
+    .citations { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:#b7c7da; white-space:pre-wrap; }
+    .flex { display:flex; gap:8px; align-items:center; }
+    .right { justify-content:flex-end; }
+    .pill { padding:4px 8px; border:1px solid #2a3a54; border-radius:999px; color:var(--muted);}
+    footer{ color:#7f91a8; text-align:center; padding:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Skyro RAG – Internal Docs Assistant</h1>
+  </header>
+
+  <main>
+    <section class="panel grid">
+      <div class="flex right">
+        <button id="btnIngest" class="btn ghost" title="Index the local 'data' folder">Ingest data/</button>
+        <span id="ingestStatus" class="pill">idle</span>
+      </div>
+
+      <div class="samples">
+  <button class="chip" data-q="What are the P2P limits per tier and do Gold users need repeat KYC?">P2P limits & KYC</button>
+  <button class="chip" data-q="When do we escalate payout delays and what are the first steps from the runbook?">SLA escalation steps</button>
+  <button class="chip" data-q="Summarize the root cause and fix from the 2024-09-18 payout delays postmortem.">Postmortem 2024-09-18</button>
+  <button class="chip" data-q="What caused the 2024-10-14 ledger desynchronization and what schema/index change fixed it?">Ledger desync 2024-10-14</button>
+  <button class="chip" data-q="Who is the Payments primary on-call for the next rotation and what are the escalation timings?">On-call schedule</button>
+  <button class="chip" data-q="What provider SLOs and failover triggers do we use for AlphaPay and BetaWire?">Provider SLO & failover</button>
+  <button class="chip" data-q="Which merchants are in risk tier T3 and what notes are associated with them?">Merchant risk tiers</button>
+</div>
+
+
+      <div class="row">
+        <input id="question" type="text" placeholder="Ask your question..." />
+        <div class="flex">
+          <select id="model" class="pill" style="padding:8px 10px;">
+            <option value="gpt-5">gpt-5</option>
+            <option value="gpt-5-mini">gpt-5-mini</option>
+            <option value="gpt-5-nano">gpt-5-nano</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4o-mini" selected>gpt-4o-mini</option>
+          </select>
+          <button id="btnAsk" class="btn">Ask</button>
+        </div>
+</div>
+
+      <small>Hints: try one of the sample chips above, or type a custom question. Answers always come in English and include citations.</small>
+    </section>
+
+    <section class="panel grid">
+      <div class="grid">
+        <div class="flex" style="justify-content:space-between;">
+          <strong>Answer</strong>
+          <small id="answerModel" class="pill">model: –</small>
+        </div>
+        <div id="answer" class="answer">–</div>
+
+
+
+      </div>
+      <div class="grid">
+        <div><strong>Citations</strong></div>
+        <div id="cites" class="citations">–</div>
+      </div>
+      <div class="flex right">
+        <button id="thumbUp" class="btn ghost" title="Mark helpful">👍 Helpful</button>
+        <button id="thumbDown" class="btn ghost" title="Mark not helpful">👎 Not helpful</button>
+        <span id="fbStatus" class="pill">no feedback</span>
+      </div>
+    </section>
+
+    <footer>UI powered by FastAPI static files · Running on <code>/ui</code></footer>
+  </main>
+
+  <script>
+    const BASE = location.origin; // same origin as API
+    const qs = (s) => document.querySelector(s);
+    const btnIngest = qs('#btnIngest');
+    const ingestStatus = qs('#ingestStatus');
+    const modelSel = qs('#model');
+    const answerModel = qs('#answerModel');
+    const btnAsk = qs('#btnAsk');
+    const input = qs('#question');
+    const answer = qs('#answer');
+    const cites = qs('#cites');
+    const chips = document.querySelectorAll('.chip');
+    const up = qs('#thumbUp');
+    const down = qs('#thumbDown');
+    const fbStatus = qs('#fbStatus');
+
+    let lastQuestion = "";
+    let lastAnswerId = ""; // you can extend your backend to return an id
+
+    const savedModel = localStorage.getItem('rag_model');
+    if (savedModel) modelSel.value = savedModel;
+    modelSel.addEventListener('change', () => {
+      localStorage.setItem('rag_model', modelSel.value);
+    });
+    chips.forEach(ch => ch.addEventListener('click', () => {
+      input.value = ch.dataset.q;
+      input.focus();
+    }));
+
+    btnIngest.addEventListener('click', async () => {
+      try {
+        btnIngest.disabled = true;
+        ingestStatus.textContent = 'ingesting...';
+        const res = await fetch(`${BASE}/ingest`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ paths: ['data'] })
+        });
+        const j = await res.json();
+        ingestStatus.textContent = res.ok ? `ok (indexed: ${j.indexed}, chunks: ${j.chunks})` : 'error';
+      } catch (e) {
+        console.error(e);
+        ingestStatus.textContent = 'error';
+      } finally {
+        btnIngest.disabled = false;
+      }
+    });
+
+    async function ask() {
+      const q = input.value.trim();
+      if (!q) return;
+      lastQuestion = q;
+      const selectedModel = modelSel.value;
+      btnAsk.disabled = true;
+      answer.textContent = 'Thinking...';
+      cites.textContent = '';
+      fbStatus.textContent = 'no feedback';
+      answerModel.textContent = 'model: ' + selectedModel;
+
+      try {
+        const res = await fetch(`${BASE}/ask`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ question: q, model: selectedModel })
+        });
+        const j = await res.json();
+        // Update model + latency pill
+        const modelPill = document.getElementById('answerModel'); // e.g. a <span id="answerModel">
+        const modelName = j.model || selectedModel;
+        const latency = (typeof j.latency_ms === 'number') ? `${j.latency_ms} ms` : '–';
+        modelPill.textContent = `model: ${modelName} • ${latency}`;
+
+        // (optional) show split timing in a tooltip if you logged them
+        if (typeof j.retrieval_ms === 'number' || typeof j.llm_ms === 'number') {
+          const r = (j.retrieval_ms != null) ? `${j.retrieval_ms} ms` : '–';
+          const g = (j.llm_ms != null) ? `${j.llm_ms} ms` : '–';
+          modelPill.title = `retrieval: ${r} | generation: ${g}`;
+        }
+
+        // Render answer + citations as you already do
+        answer.textContent = j.answer || 'No answer.';
+        cites.textContent = j.citations || '';
+
+        // (optional) keep the answer_id for feedback buttons
+        document.querySelector('#feedbackHelpful')?.setAttribute('data-answer-id', j.answer_id || '');
+        document.querySelector('#feedbackNotHelpful')?.setAttribute('data-answer-id', j.answer_id || '');
+
+        if (!res.ok) throw new Error(j.detail || 'Request failed');
+        answer.textContent = j.answer || 'No answer.';
+        cites.textContent = j.citations || '';
+        answerModel.textContent = 'model: ' + (j.model || selectedModel);
+        lastAnswerId = j.answer_id || '';
+      } catch (e) {
+        console.error(e);
+        answer.textContent = 'Error: ' + (e.message || e.toString());
+        cites.textContent = '';
+      } finally {
+        btnAsk.disabled = false;
+      }
+    }
+
+
+    btnAsk.addEventListener('click', ask);
+    input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') ask();
+    });
+
+    async function sendFeedback(helpful) {
+      if (!lastQuestion) {
+        fbStatus.textContent = 'no question yet';
+        return;
+      }
+      try {
+        fbStatus.textContent = 'sending...';
+        const res = await fetch(`${BASE}/feedback`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            question: lastQuestion,
+            answer_id: lastAnswerId || null,
+            helpful: helpful,
+            notes: ''
+          })
+        });
+        fbStatus.textContent = res.ok ? (helpful ? '👍 recorded' : '👎 recorded') : 'error';
+      } catch (e) {
+        console.error(e);
+        fbStatus.textContent = 'error';
+      }
+    }
+    up.addEventListener('click', () => sendFeedback(true));
+    down.addEventListener('click', () => sendFeedback(false));
+  </script>
+</body>
+</html>
