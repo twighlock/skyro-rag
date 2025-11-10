@@ -30,6 +30,63 @@ RAG_DB_DIR=.chroma
 CHAT_MODEL=gpt-4o-mini
 EMBED_MODEL=text-embedding-3-small
 ```
+### System overview
+
+flowchart LR
+  subgraph Client
+    UI[Web UI\n(index.html)]
+    SlackUser[Slack User]
+  end
+
+  subgraph API[FastAPI App]
+    ASK[/POST /ask/]
+    INGEST[/POST /ingest/]
+    FEEDBACK[/POST /feedback/]
+    METRICS[/GET /metrics/]
+    EVAL[/GET /eval/]
+    DEBUG[/GET /debug/*/]
+    SLACK[/POST /slack/command/]
+    LOGS[(.logs/events.jsonl)]
+    STATE{{STATE:\n- bm25\n- collection_name\n- persist_dir}}
+  end
+
+  subgraph Retrieval
+    CHUNK[Chunker\n(token 512–1024, 10–20% overlap)]
+    EMBED[Embeddings\n(text-embedding-3-small)]
+    VECDB[(Chroma\n.collection skyro_rag\n.persist ./.chroma)]
+    BM25[BM25 Retriever]
+    FUSION[Hybrid Fusion\n(dense + sparse)]
+    (RERANK)[Cross-encoder Reranker\n(optional)]
+  end
+
+  subgraph Corpus[Content]
+    DATA[(data/\nPDF, MD, TXT)]
+  end
+
+  subgraph LLM[Generation]
+    MODELS[[gpt-5 / gpt-5-mini / gpt-5-nano\n gpt-4o / gpt-4o-mini]]
+  end
+
+  UI -- ask --> ASK
+  SlackUser -- /ask-skyro --> SLACK
+
+  INGEST --> CHUNK --> EMBED --> VECDB
+  INGEST --> BM25
+  ASK --> FUSION
+  FUSION --> VECDB
+  FUSION --> BM25
+  FUSION --> (RERANK)
+  (RERANK) --> MODELS
+  FUSION --> MODELS
+  MODELS --> ASK
+
+  ASK --> LOGS
+  FEEDBACK --> LOGS
+  METRICS --> LOGS
+
+  DATA --- INGEST
+  STATE --- VECDB
+  STATE --- BM25
 
 ### 2) Run the server
 ```bash
