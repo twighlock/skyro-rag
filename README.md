@@ -31,7 +31,7 @@ CHAT_MODEL=gpt-4o-mini
 EMBED_MODEL=text-embedding-3-small
 ```
 ### System overview
-
+```mermaid
 flowchart LR
   subgraph Client
     UI[Web UI\n(index.html)]
@@ -87,7 +87,7 @@ flowchart LR
   DATA --- INGEST
   STATE --- VECDB
   STATE --- BM25
-
+```
 ### 2) Run the server
 ```bash
 uvicorn app.main:app --port 8000 --reload
