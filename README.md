@@ -26,7 +26,7 @@ pip install -U "fastapi" "uvicorn[standard]" ^
 Create **`.env`**:
 ```ini
 OPENAI_API_KEY=sk-xxxx
-# Optional defaults
+RAG_DB_DIR=.chroma
 CHAT_MODEL=gpt-4o-mini
 EMBED_MODEL=text-embedding-3-small
 ```
@@ -92,7 +92,7 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:8000/ask" -ContentType "ap
 - **helpful_rate:** (click 👍/👎 in UI to populate)  
 - **by_model:** shows usage per selected model (`gpt-5-mini`, `gpt-5-nano`, etc.)
 
-> Tip: for faster p95, use `gpt-4o-mini`, shorten answers via prompt, or enable streaming in the UI.
+> Tip: for faster p95, use `gpt-5-nano`, shorten answers via prompt, or enable streaming in the UI.
 
 ---
 
@@ -124,22 +124,6 @@ eval/
 - **Embedding model** is set in `app/rag.py` (`make_embeddings`) and used by both ingest and eval. If you change it, delete `.chroma/` and re-ingest.
 - **Hybrid retrieval**: dense (Chroma) + sparse (BM25). BM25 top-k is set during construction.
 - **Groundedness** heuristic checks that retrieved context contains `must_contain` strings from the eval file.
-- **Security**: never commit `.env`. Use `.env.example` to document variables.
-
----
-
-## Troubleshooting
-
-- **0.0 eval scores**: usually path mismatches in gold vs indexed sources → use `/debug/index` and filename-based matching (already implemented).
-- **Import errors** with `Document`: use `from langchain_core.documents import Document` (newer LangChain).
-- **BM25 `.get_relevant_documents`** missing: use `.invoke()` or the compatibility wrapper in `eval_runner.py`.
-
----
-
-## License
-
-MIT (or your preferred license).
-
 ---
 
 ## Acknowledgements
@@ -255,3 +239,12 @@ async def slack_command(req: Request):
 - **Doc authority**: per-source trust weights; prefer fresher docs when scores tie.
 - **Stronger groundedness**: require sentence-level citation mapping; optional LLM verifier.
 - **Batch eval**: nightly cron to recompute `/eval` and push a Markdown report to Slack.
+
+---
+
+## Troubleshooting
+
+- **0.0 eval scores**: usually path mismatches in gold vs indexed sources → use `/debug/index` and filename-based matching (already implemented).
+- **Import errors** with `Document`: use `from langchain_core.documents import Document` (newer LangChain).
+- **BM25 `.get_relevant_documents`** missing: use `.invoke()` or the compatibility wrapper in `eval_runner.py`.
+
